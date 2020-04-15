@@ -2,14 +2,16 @@ import React from "react";
 import styled from "@emotion/styled";
 
 import Location from "./Location";
+import Icon from "./Icon";
+import Condition from "./Condition";
 
-const WeatherCard = (props) => {
+const WeatherCard = ({ temp, condition, city, country }) => {
   let highColor = 0;
   let lowColor = 0;
   let bg = null;
-  if (props.temp > 12) {
+  if (temp > 12) {
     //hot weather
-    highColor = (1 - (props.temp - 12) / 28) * 255;
+    highColor = (1 - (temp - 12) / 28) * 255;
     lowColor = highColor - 150;
     bg = `
         linear-gradient(
@@ -18,9 +20,9 @@ const WeatherCard = (props) => {
         rgba(255, ${lowColor}, 0)
         )
       `;
-  } else if (props.temp < 12) {
+  } else if (temp < 12) {
     //cold weather
-    highColor = (1 - (props.temp + 20) / 32) * 255;
+    highColor = (1 - (temp + 20) / 32) * 255;
     lowColor = highColor - 150;
     bg = `
         linear-gradient(
@@ -44,14 +46,9 @@ const WeatherCard = (props) => {
 
   return (
     <Card>
-      <Location />
-      <img
-        className="icon"
-        src="./img/Mostly Cloudy-2x.png"
-        alt="Weather Icon"
-      />
-      <h1 className="temp">20 C</h1>
-      <h3 className="condition">Clouds</h3>
+      <Location city={city} country={country} />
+      <Icon condition={condition} />
+      <Condition temp={temp} condition={condition} />
     </Card>
   );
 };
