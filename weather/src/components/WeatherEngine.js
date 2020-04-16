@@ -4,6 +4,8 @@ import WeatherCard from "./WeatherCard/component";
 
 const WeatherEngine = ({ location }) => {
   const [query, setQuery] = useState("");
+  const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [weather, setWeather] = useState({
     temp: null,
     city: null,
@@ -20,16 +22,23 @@ const WeatherEngine = ({ location }) => {
   const API_KEY = process.env.REACT_APP_WEATHER_API_KEY;
 
   const getWeather = async (q) => {
-    const apiRes = await fetch(
-      `http://api.openweathermap.org/data/2.5/weather?q=${q}&units=metric&APPID=${API_KEY}`
-    );
-    const resJSON = await apiRes.json();
-    setWeather({
-      temp: resJSON.main.temp,
-      city: resJSON.name,
-      condition: resJSON.weather[0].main,
-      country: resJSON.sys.country,
-    });
+    setQuery("");
+    setLoading(true);
+    try {
+      const apiRes = await fetch(
+        `http://api.openweathermap.org/data/2.5/weather?q=${q}&units=metric&APPID=${API_KEY}`
+      );
+      const resJSON = await apiRes.json();
+      setWeather({
+        temp: resJSON.main.temp,
+        city: resJSON.name,
+        condition: resJSON.weather[0].main,
+        country: resJSON.sys.country,
+      });
+    } catch (error) {
+      setError(true);
+    }
+    setLoading(false);
   };
   //console.log(data());
 
@@ -45,19 +54,31 @@ const WeatherEngine = ({ location }) => {
 
   return (
     <div>
-      <WeatherCard
-        temp={weather.temp}
-        condition={weather.condition}
-        city={weather.city}
-        country={weather.country}
-      />
-      {/* <WeatherCard temp={20} condition="Clouds" city="Melbourne" country="AU" />
+      {!loading && !error ? (
+        <div>
+          <WeatherCard
+            temp={weather.temp}
+            condition={weather.condition}
+            city={weather.city}
+            country={weather.country}
+          />
+          {/* <WeatherCard temp={20} condition="Clouds" city="Melbourne" country="AU" />
       <WeatherCard temp={40} condition="Tornado" city="London" country="GB" />
       <WeatherCard temp={10} condition="Clear" city="Sandpoint" country="US" /> */}
-      <form>
-        <input value={query} onChange={(e) => setQuery(e.target.value)} />
-        <button onClick={(e) => handleSearch(e)}>Search</button>
-      </form>
+          <form>
+            <input value={query} onChange={(e) => setQuery(e.target.value)} />
+            <button onClick={(e) => handleSearch(e)}>Search</button>
+          </form>
+        </div>
+      ) : loading ? (
+        <div style={{ color: "black" }}>loading</div>
+      ) : !loading && error ? (
+        <div>
+          <div style={{ color: "black" }}>There has been an error!</div>
+          <br />
+          <button onClick={() => setError(false)}>Reset!</button>
+        </div>
+      ) : null}
     </div>
   );
 };
